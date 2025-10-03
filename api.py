@@ -42,7 +42,9 @@ except Exception as e:
 # --- Preprocessing Function ---
 def data_preprocess(text: str) -> str:
     text = text.lower()
-    tokens = nltk.word_tokenize(text)
+    from nltk.tokenize import wordpunct_tokenize
+    tokens = wordpunct_tokenize(text)
+
 
     # Keep only alphanumeric, remove stopwords & punctuation
     cleaned = [w for w in tokens if w.isalnum() and w not in stopWords and w not in string.punctuation]
