@@ -1,20 +1,16 @@
 import os
 import pickle
-import string
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from nltk.tokenize import wordpunct_tokenize
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 
 # --- Preprocessing Setup ---
 pt = PorterStemmer()
-
-# Ensure NLTK resources are available
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
-stopWords = stopwords.words("english")
+stopWords = stopwords.words("english")  # Only stopwords needed
 
 # --- Model & Vectorizer Loading ---
 BASE_DIR = os.path.dirname(__file__)
@@ -31,7 +27,7 @@ try:
     with open(MODEL_PATH, 'rb') as mf:
         mnb = pickle.load(mf)
 
-    print("✅ Assets and NLTK data loaded successfully!")
+    print("✅ Assets loaded successfully!")
     asset_load_success = True
 
 except Exception as e:
@@ -41,13 +37,14 @@ except Exception as e:
 
 # --- Preprocessing Function ---
 def data_preprocess(text: str) -> str:
+    # Lowercase
     text = text.lower()
-    from nltk.tokenize import wordpunct_tokenize
+
+    # Tokenize (safe tokenizer, no punkt required)
     tokens = wordpunct_tokenize(text)
 
-
-    # Keep only alphanumeric, remove stopwords & punctuation
-    cleaned = [w for w in tokens if w.isalnum() and w not in stopWords and w not in string.punctuation]
+    # Keep only alphanumeric tokens, remove stopwords
+    cleaned = [w for w in tokens if w.isalnum() and w not in stopWords]
 
     # Apply stemming
     stemmed = [pt.stem(w) for w in cleaned]
